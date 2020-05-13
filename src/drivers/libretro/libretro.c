@@ -1085,15 +1085,15 @@ void FCEUD_RegionOverride(unsigned region)
          pal = systemRegion & 1;
          break;
       case 1: /* ntsc */
-         FCEU_DispMessage("System: NTSC");
+         FCEU_DispMessage("制式：NTSC");
          break;
       case 2: /* pal */
          pal = 1;
-         FCEU_DispMessage("System: PAL");
+         FCEU_DispMessage("制式：PAL");
          break;
       case 3: /* dendy */
          d = 1;
-         FCEU_DispMessage("System: Dendy");
+         FCEU_DispMessage("制式：Dendy");
          break;
    }
 

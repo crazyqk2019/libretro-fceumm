@@ -179,11 +179,11 @@ static void FDSInit(void) {
 
 void FCEU_FDSInsert(int oride) {
 	if (InDisk == 255) {
-		FCEU_DispMessage("Disk %d of %d Side %s Inserted",
+		FCEU_DispMessage("磁盘 %d 共 %d 张，第 %s 面已插入",
 			1 + (SelectDisk >> 1), (TotalSides + 1) >> 1, (SelectDisk & 1) ? "B" : "A");
 		InDisk = SelectDisk;
 	} else {
-		FCEU_DispMessage("Disk %d of %d Side %s Ejected",
+		FCEU_DispMessage("磁盘 %d 共 %d 张，第 %s 面已弹出",
 			1 + (SelectDisk >> 1), (TotalSides + 1) >> 1, (SelectDisk & 1) ? "B" : "A");
 		InDisk = 255;
 	}
@@ -195,11 +195,11 @@ void FCEU_FDSEject(void) {
 
 void FCEU_FDSSelect(void) {
 	if (InDisk != 255) {
-		FCEU_DispMessage("Eject disk before selecting.");
+		FCEU_DispMessage("选择之前先弹出磁盘。");
 		return;
 	}
 	SelectDisk = ((SelectDisk + 1) % TotalSides) & 3;
-	FCEU_DispMessage("Disk %d of %d Side %s Selected",
+	FCEU_DispMessage("磁盘 %d 共 %d 张，第 %s 面已选择",
 		1 + (SelectDisk >> 1), (TotalSides + 1) >> 1, (SelectDisk & 1) ? "B" : "A");
 }
 
