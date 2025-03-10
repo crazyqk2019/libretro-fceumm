@@ -7,6 +7,10 @@
 #include <libretro.h>
 #include <retro_inline.h>
 
+#ifndef HAVE_NO_LANGEXTRA
+#include "libretro_core_options_intl.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -17,6 +21,9 @@ extern "C" {
  ********************************
 */
 
+/* NOTE: add 8 for dipswitch */
+#define MAX_CORE_OPTIONS 42
+
 /* RETRO_LANGUAGE_ENGLISH */
 
 /* Default language:
@@ -26,344 +33,82 @@ extern "C" {
  * - Will be used as a fallback for any missing entries in
  *   frontend language definition */
 
-#define MAX_CORE_OPTIONS 32
+struct retro_core_option_v2_category option_cats_us[] = {
+   {
+      "system",
+      "System",
+      "Change region and hardware add-on settings."
+   },
+   {
+      "video",
+      "Video",
+#ifdef HAVE_NTSC_FILTER
+      "Change aspect ratio, display cropping, color palette and video filter options."
+#else
+      "Change aspect ratio, display cropping and color palette options."
+#endif
+   },
+   {
+      "audio",
+      "Audio",
+      "Change sound quality, volume, channel enable settings."
+   },
+   {
+      "input",
+      "Input",
+      "Change turbo, Arkanoid and light gun settings."
+   },
+   {
+      "hacks",
+      "Emulation Hacks",
+      "Change processor overclocking and emulation accuracy settings affecting low-level performance and compatibility."
+   },
+   {
+      "dip_switch",
+      "DIP Switches",
+      "Change arcade game settings."
+   },
+   { NULL, NULL, NULL },
+};
 
-struct retro_core_option_definition option_defs_common[] = {
+struct retro_core_option_v2_definition option_defs[] = {
    {
       "fceumm_region",
       "Region",
+      NULL,
       "Force core to use NTSC, PAL or Dendy region timings.",
+      NULL,
+      "system",
       {
          { "Auto",  NULL },
          { "NTSC",  NULL },
          { "PAL",   NULL },
          { "Dendy", NULL },
-         { NULL, NULL},
+         { NULL, NULL },
       },
       "Auto",
    },
    {
-      "fceumm_overclocking",
-      "Overclock",
-      "Enables or disables overclocking which can reduce slowdowns in some games. Postrender method is more compatible with every game with Vblank more effective for games like Contra Force.",
-      {
-         { "disabled",      NULL },
-         { "2x-Postrender", NULL },
-         { "2x-VBlank",     NULL },
-         { NULL, NULL},
-      },
-      "disabled",
-   },
-   {
-      "fceumm_ramstate",
-      "RAM Power-On Fill (Needs Restart)",
-      "Choose RAM startup during power up. Some games rely on initial ram values for random generator as an example.",
-      {
-         { "fill $ff", "$FF" },
-         { "fill $00", "$00" },
-         { "random",   "random" },
-         { NULL, NULL},
-      },
-      "fill $ff",
-   },
-   {
-      "fceumm_nospritelimit",
-      "No Sprite Limit",
-      "Removes the 8-per-scanline hardware limit. This reduces sprite flickering but can cause some games to glitch since some use this for effects.",
+      "fceumm_game_genie",
+      "Game Genie Add-On (Restart Required)",
+      NULL,
+      "Enable emulation of a Game Genie add-on cartridge, allowing cheat codes to be entered when launching games. The Game Genie ROM file 'gamegenie.nes' must be present in the frontend's system directory. Does not apply to FDS or arcade content.",
+      NULL,
+      "system",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
-         { NULL, NULL},
-      },
-      "disabled",
-   },
-#ifdef HAVE_NTSC_FILTER
-   {
-      "fceumm_ntsc_filter",
-      "NTSC Filter",
-      "Enable blargg NTSC filters.",
-      {
-         { "disabled",   NULL },
-         { "composite",  NULL },
-         { "svideo",     NULL },
-         { "rgb",        NULL },
-         { "monochrome", NULL },
          { NULL, NULL },
       },
-      "disabled"
-   },
-#endif
-   {
-      "fceumm_palette",
-      "Color Palette",
-      "Choose from pre-generated palettes, a custom 64x3 palette from file or raw format (needs to use a nes-decoder shader).",
-      {
-         { "default",              NULL },
-         { "asqrealc",             NULL },
-         { "nintendo-vc",          NULL },
-         { "rgb",                  NULL },
-         { "yuv-v3",               NULL },
-         { "unsaturated-final",    NULL },
-         { "sony-cxa2025as-us",    NULL },
-         { "pal",                  NULL },
-         { "bmf-final2",           NULL },
-         { "bmf-final3",           NULL },
-         { "smooth-fbx",           NULL },
-         { "composite-direct-fbx", NULL },
-         { "pvm-style-d93-fbx",    NULL },
-         { "ntsc-hardware-fbx",    NULL },
-         { "nes-classic-fbx-fs",   NULL },
-         { "nescap",               NULL },
-         { "wavebeam",             NULL },
-         { "raw",                  NULL },
-         { "custom",               NULL },
-         { NULL, NULL},
-      },
-      "default",
-   },
-   {
-      "fceumm_aspect",
-      "Aspect Ratio",
-      "Choose preferred aspect ratio.",
-      {
-         { "8:7 PAR", NULL },
-         { "4:3",     NULL },
-         { NULL, NULL},
-      },
-      "8:7 PAR",
-   },
-#ifdef PSP
-   {
-      "fceumm_overscan",
-      "Crop Overscan",
-      "Removes 8 pixel overscan from all sides",
-      {
-         { "enabled",  NULL },
-         { "disabled", NULL },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-#else
-   {
-      "fceumm_overscan_h",
-      "Crop Horizontal Overscan",
-      "Removes 8 pixel from left and right side of the screen to simulate overscan seen on standard CRT television.",
-      {
-         { "disabled", NULL },
-         { "enabled",  NULL },
-         { NULL, NULL},
-      },
       "disabled",
-   },
-      {
-      "fceumm_overscan_v",
-      "Crop Vertical Overscan",
-      "Removes 8 pixel from the top and bottom of the screen to simulate overscan seen on standard CRT television.",
-      {
-         { "disabled", NULL },
-         { "enabled",  NULL },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-#endif /* overscan options */
-   {
-      "fceumm_up_down_allowed",
-      "Allow Opposing Directions",
-      "Allows simultaneous UP+DOWN or LEFT+RIGHT button combinations which can create different effects in some games.",
-      {
-         { "disabled", NULL },
-         { "enabled",  NULL },
-         { NULL, NULL},
-      },
-      "disabled",
-   },
-   {
-      "fceumm_turbo_enable",
-      "Turbo Enable",
-      "Enables or disables turbo buttons.",
-      {
-         { "None",     NULL },
-         { "Player 1", NULL },
-         { "Player 2", NULL },
-         { "Both",     NULL },
-         { NULL, NULL},
-      },
-      "None",
-   },
-   {
-      "fceumm_turbo_delay",
-      "Turbo Delay (in frames)",
-      "Repeat rate of turbo buttons in frames.",
-      {
-         { "1",  NULL },
-         { "2",  NULL },
-         { "3",  NULL },
-         { "5",  NULL },
-         { "10", NULL },
-         { "15", NULL },
-         { "30", NULL },
-         { "60", NULL },
-         { NULL, NULL},
-      },
-      "3",
-   },
-   {
-      "fceumm_zapper_mode",
-      "Zapper Mode",
-      "Selects device to use for zapper games.",
-      {
-         { "lightgun",    NULL },
-         { "touchscreen", NULL },
-         { "mouse",       NULL },
-         { NULL, NULL},
-      },
-      "lightgun",
-   },
-   {
-      "fceumm_show_crosshair",
-      "Show Crosshair",
-      "Shows or hides on-screen crosshairs when using a zapper.",
-      {
-         { "enabled",  NULL },
-         { "disabled", NULL },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_zapper_tolerance",
-      "Zapper Tolerance",
-      "Sets how many pixels from target area is on target.",
-      {
-         { "0",  NULL },
-         { "1",  NULL },
-         { "2",  NULL },
-         { "3",  NULL },
-         { "4",  NULL },
-         { "5",  NULL },
-         { "6",  NULL },
-         { "7",  NULL },
-         { "8",  NULL },
-         { "9",  NULL },
-         { "10", NULL },
-         { "11", NULL },
-         { "12", NULL },
-         { "13", NULL },
-         { "14", NULL },
-         { "15", NULL },
-         { "16", NULL },
-         { "17", NULL },
-         { "18", NULL },
-         { "19", NULL },
-         { "20", NULL },
-         { NULL, NULL },
-      },
-      "6",
-   },
-   {
-      "fceumm_sndquality",
-      "Sound Quality",
-      "Enable higher quality sounds in exchange for more processing power required",
-      {
-         { "Low",       NULL },
-         { "High",      NULL },
-         { "Very High", NULL },
-         { NULL, NULL},
-      },
-      "Low",
-   },
-   {
-      "fceumm_swapduty",
-      "Swap Duty Cycles",
-      "Simulates the sound from famiclones has the pulse wave channels duty cycle bits reversed.",
-      {
-         { "disabled", NULL },
-         { "enabled",  NULL },
-         { NULL, NULL},
-      },
-      "disabled",
-   },
-   {
-      "fceumm_sndvolume",
-      "Master Volume",
-      "Change master volume level",
-      {
-         { "0",  NULL },
-         { "1",  NULL },
-         { "2",  NULL },
-         { "3",  NULL },
-         { "4",  NULL },
-         { "5",  NULL },
-         { "6",  NULL },
-         { "7",  NULL },
-         { "8",  NULL },
-         { "9",  NULL },
-         { "10", NULL },
-         { NULL, NULL},
-      },
-      "7",
-   },
-   {
-      "fceumm_apu_1",
-      "Channel 1 (Square 1)",
-      "Enables or disables pulse wave generator audio output 1.",
-      {
-         { "enabled",  NULL },
-         { "disabled", NULL },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_apu_2",
-      "Channel 2 (Square 2)",
-      "Enables or disables pulse wave generator audio output 2.",
-      {
-         { "enabled",  NULL },
-         { "disabled", NULL },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_apu_3",
-      "Channel 3 (Triangle)",
-      "Enables or disables triangle wave generator audio output.",
-      {
-         { "enabled",  NULL },
-         { "disabled", NULL },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_apu_4",
-      "Channel 4 (Noise)",
-      "Enables or disables noise generator audio output.",
-      {
-         { "enabled",  NULL },
-         { "disabled", NULL },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_apu_5",
-      "Channel 5 (PCM)",
-      "Enables or disables delta modulation channel audio output.",
-      {
-         { "enabled",  NULL },
-         { "disabled", NULL },
-         { NULL, NULL},
-      },
-      "enabled",
    },
    {
       "fceumm_show_adv_system_options",
       "Show Advanced System Options",
+      NULL,
       "Show advanced system options and tweaks.",
+      NULL,
+      NULL,
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -374,7 +119,10 @@ struct retro_core_option_definition option_defs_common[] = {
    {
       "fceumm_show_adv_sound_options",
       "Show Advanced Sound Options",
+      NULL,
       "Show advanced sound options and tweaks.",
+      NULL,
+      NULL,
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -382,210 +130,372 @@ struct retro_core_option_definition option_defs_common[] = {
       },
       "disabled"
    },
-
-   { NULL, NULL, NULL, { {0} }, NULL },
-};
-
-struct retro_core_option_definition option_defs_empty = {
-   NULL, NULL, NULL, { {0} }, NULL
-};
-
-struct retro_core_option_definition option_defs_us[MAX_CORE_OPTIONS];
-
-/* RETRO_LANGUAGE_JAPANESE */
-
-/* RETRO_LANGUAGE_FRENCH */
-
-/* RETRO_LANGUAGE_SPANISH */
-
-/* RETRO_LANGUAGE_GERMAN */
-
-/* RETRO_LANGUAGE_ITALIAN */
-
-/* RETRO_LANGUAGE_DUTCH */
-
-/* RETRO_LANGUAGE_PORTUGUESE_BRAZIL */
-
-/* RETRO_LANGUAGE_PORTUGUESE_PORTUGAL */
-
-/* RETRO_LANGUAGE_RUSSIAN */
-
-/* RETRO_LANGUAGE_KOREAN */
-
-/* RETRO_LANGUAGE_CHINESE_TRADITIONAL */
-
-/* RETRO_LANGUAGE_CHINESE_SIMPLIFIED */
-
-struct retro_core_option_definition option_defs_chs[] = {
    {
-      "fceumm_region",
-      "制式",
-      "强制内核使用NTSC，PAL或Dendy制式时序。",
+      "fceumm_aspect",
+      "Aspect Ratio",
+      NULL,
+      "Choose preferred aspect ratio.",
+      NULL,
+      "video",
       {
-         { "Auto",  "自动" },
-         { "NTSC",  NULL },
-         { "PAL",   NULL },
-         { "Dendy", NULL },
-         { NULL, NULL},
+         { "8:7 PAR", NULL },
+         { "4:3",     NULL },
+         { "PP",      "Pixel Perfect" },
+         { NULL, NULL },
       },
-      "Auto",
+      "8:7 PAR",
+   },
+#ifdef PSP /* overscan options */
+   {
+      "fceumm_overscan",
+      "Crop Overscan",
+      NULL,
+      "Removes 8 pixel overscan from all sides of the screen.",
+      NULL,
+      "video",
+      {
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
+      },
+      "enabled",
+   },
+#else
+   {
+      "fceumm_overscan_h_left",
+      "Crop Horizontal Left Overscan",
+      NULL,
+      "Removes pixels from left side of the screen to simulate overscan seen on standard CRT televisions.",
+      NULL,
+      "video",
+      {
+         { "0", NULL },
+         { "4",  NULL },
+         { "8",  NULL },
+         { "12",  NULL },
+         { "16",  NULL },
+         { NULL, NULL },
+      },
+      "0",
    },
    {
-      "fceumm_overclocking",
-      "超频",
-      "启用超频以减少某些游戏的拖慢问题。\nPostrender方式在所有游戏中有更好的兼容性，而Vblank方式在有些游戏中更加有效，例如魂斗罗力量。",
+      "fceumm_overscan_h_right",
+      "Crop Horizontal Right Overscan",
+      NULL,
+      "Removes pixels from right side of the screen to simulate overscan seen on standard CRT televisions.",
+      NULL,
+      "video",
       {
-         { "disabled",     "禁用" },
-         { "2x-Postrender", NULL },
-         { "2x-VBlank",     NULL },
-         { NULL, NULL},
+         { "0", NULL },
+         { "4",  NULL },
+         { "8",  NULL },
+         { "12",  NULL },
+         { "16",  NULL },
+         { NULL, NULL },
       },
-      "disabled",
+      "0",
    },
    {
-      "fceumm_ramstate",
-      "启动时填充内存（须要重启）",
-      "选择启动时填充内存的值。某些游戏依赖初始内存值作为随机数生成器的取样。",
+      "fceumm_overscan_v_top",
+      "Crop Vertical Top Overscan",
+      NULL,
+      "Removes pixels from the top of the screen to simulate overscan seen on standard CRT televisions.",
+      NULL,
+      "video",
       {
-         { "fill $ff", "$FF" },
-         { "fill $00", "$00" },
-         { "random",   "随机值" },
-         { NULL, NULL},
+         { "0", NULL },
+         { "4",  NULL },
+         { "8",  NULL },
+         { "12",  NULL },
+         { "16",  NULL },
+         { "20",  NULL },
+         { "24",  NULL },
+         { NULL, NULL },
       },
-      "fill $ff",
+      "8",
    },
    {
-      "fceumm_nospritelimit",
-      "无角色限制",
-      "移除每扫描线8个角色的硬件限制。\n可以减少角色闪烁，但是可能造成某些游戏不正常，因为它们使用此特性来显示特效。",
+      "fceumm_overscan_v_bottom",
+      "Crop Vertical Bottom Overscan",
+      NULL,
+      "Removes pixels from the bottom of the screen to simulate overscan seen on standard CRT televisions.",
+      NULL,
+      "video",
       {
-         { "disabled", "禁用" },
-         { "enabled",  "启用" },
-         { NULL, NULL},
+         { "0", NULL },
+         { "4",  NULL },
+         { "8",  NULL },
+         { "12",  NULL },
+         { "16",  NULL },
+         { "20",  NULL },
+         { "24",  NULL },         
+         { NULL, NULL },
       },
-      "disabled",
+      "8",
+   },
+#endif /* overscan options */
+   {
+      "fceumm_palette",
+      "Color Palette",
+      NULL,
+      "Choose from pre-generated palettes, a custom 64x3 palette from file or raw format (needs to use a nes-decoder shader).",
+      NULL,
+      "video",
+      {
+         { "default",              "Default" },
+         { "asqrealc",             "AspiringSquire's Real" },
+         { "nintendo-vc",          "Nintendo Virtual Console" },
+         { "rgb",                  "Nintendo RGB PPU" },
+         { "yuv-v3",               "FBX's YUV-V3" },
+         { "unsaturated-final",    "FBX's Unsaturated-Final" },
+         { "sony-cxa2025as-us",    "Sony CXA2025AS US" },
+         { "pal",                  "PAL" },
+         { "bmf-final2",           "BMF's Final 2" },
+         { "bmf-final3",           "BMF's Final 3" },
+         { "smooth-fbx",           "FBX's Smooth" },
+         { "composite-direct-fbx", "FBX's Composite Direct" },
+         { "pvm-style-d93-fbx",    "FBX's PVM Style D93" },
+         { "ntsc-hardware-fbx",    "FBX's NTSC Hardware" },
+         { "nes-classic-fbx-fs",   "FBX's NES Classic (fixed)" },
+         { "nescap",               "RGBSource's NESCAP" },
+         { "wavebeam",             "nakedarthur's Wavebeam" },
+         { "digital-prime-fbx",    "FBX's Digital Prime" },
+         { "magnum-fbx",           "FBX's Magnum" },
+         { "smooth-v2-fbx",        "FBX's Smooth V2" },
+         { "nes-classic-fbx",      "FBX's NES Classic" },
+	 { "royaltea",             "Royaltea (PVM-2530)" },
+         { "mugicha",              "Mugicha" },
+         { "raw",                  "Raw" },
+         { "custom",               "Custom" },
+         { NULL, NULL },
+      },
+      "default",
    },
 #ifdef HAVE_NTSC_FILTER
    {
       "fceumm_ntsc_filter",
-      "NTSC过滤器",
-      "启用blargg NTSC过滤器。",
+      "NTSC Filter",
+      NULL,
+      "Blargg's NTSC filters are used to replicate RF, Composite, S-Video, and RGB cable signals.",
+      NULL,
+      "video",
       {
-         { "disabled",   "禁用" },
-         { "composite",  "复合视频" },
+         { "disabled",   NULL },
+         { "composite",  "Composite" },
          { "svideo",     "S-Video" },
          { "rgb",        "RGB" },
-         { "monochrome", "单色" },
+         { "monochrome", "Monochrome" },
          { NULL, NULL },
       },
       "disabled"
    },
 #endif
    {
-      "fceumm_palette",
-      "调色板",
-      "可以选择预定义调色板，或者从文件载入一个64x3的调色板，或者原始数据格式（需要使用nes-decoder渲染器）。",
+      "fceumm_sndquality",
+      "Sound Quality",
+      NULL,
+      "Enable higher quality sound. Increases performance requirements.",
+      NULL,
+      "audio",
       {
-         { "default",              "缺省" },
-         { "asqrealc",             NULL },
-         { "nintendo-vc",          NULL },
-         { "rgb",                  NULL },
-         { "yuv-v3",               NULL },
-         { "unsaturated-final",    NULL },
-         { "sony-cxa2025as-us",    NULL },
-         { "pal",                  NULL },
-         { "bmf-final2",           NULL },
-         { "bmf-final3",           NULL },
-         { "smooth-fbx",           NULL },
-         { "composite-direct-fbx", NULL },
-         { "pvm-style-d93-fbx",    NULL },
-         { "ntsc-hardware-fbx",    NULL },
-         { "nes-classic-fbx-fs",   NULL },
-         { "nescap",               NULL },
-         { "wavebeam",             NULL },
-         { "raw",                  "原始格式" },
-         { "custom",               "自定义" },
-         { NULL, NULL},
+         { "Low",       NULL },
+         { "High",      NULL },
+         { "Very High", NULL },
+         { NULL, NULL },
       },
-      "default",
+      "Low",
    },
    {
-      "fceumm_aspect",
-      "宽高比",
-      "选择想要的宽高比。",
+      "fceumm_sndlowpass",
+      "Audio RF Filter",
+      NULL,
+      "Apply a low pass audio filter to simulate the 'muted' sound of the NES when connected to a television via the RF modulator.",
+      NULL,
+      "audio",
       {
-         { "8:7 PAR", "8:7 像素宽高比" },
-         { "4:3",     NULL },
-         { NULL, NULL},
-      },
-      "8:7 PAR",
-   },
-#ifdef PSP
-   {
-      "fceumm_overscan",
-      "剪切过扫描",
-      "移除每边的8个像素过扫描区域。",
-      {
-         { "enabled",  "启用" },
-         { "disabled", "禁用" },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-#else
-   {
-      "fceumm_overscan_h",
-      "剪切水平过扫描",
-      "移除左右两边的8个像素过扫描区域，模拟在标准CRT电视上看到的图像效果。",
-      {
-         { "disabled", "禁用" },
-         { "enabled",  "启用" },
-         { NULL, NULL},
+         { "disabled", NULL },
+         { "enabled",  NULL },
+         { NULL, NULL },
       },
       "disabled",
    },
+   {
+      "fceumm_sndstereodelay",
+      "Stereo Sound Effect",
+      NULL,
+      "Enable a fake stereo sound effect by delaying the right audio channel when upmixing the mono signal output from the NES.",
+      NULL,
+      "audio",
       {
-      "fceumm_overscan_v",
-      "剪切垂直过扫描",
-      "移除上下两边的8个像素过扫描区域，模拟在标准CRT电视上看到的图像效果。",
+         { "disabled",    NULL },
+         { "01_ms_delay", "1ms Delay" },
+         { "02_ms_delay", "2ms Delay" },
+         { "03_ms_delay", "3ms Delay" },
+         { "04_ms_delay", "4ms Delay" },
+         { "05_ms_delay", "5ms Delay" },
+         { "06_ms_delay", "6ms Delay" },
+         { "07_ms_delay", "7ms Delay" },
+         { "08_ms_delay", "8ms Delay" },
+         { "09_ms_delay", "9ms Delay" },
+         { "10_ms_delay", "10ms Delay" },
+         { "11_ms_delay", "11ms Delay" },
+         { "12_ms_delay", "12ms Delay" },
+         { "13_ms_delay", "13ms Delay" },
+         { "14_ms_delay", "14ms Delay" },
+         { "15_ms_delay", "15ms Delay (Default)" },
+         { "16_ms_delay", "16ms Delay" },
+         { "17_ms_delay", "17ms Delay" },
+         { "18_ms_delay", "18ms Delay" },
+         { "19_ms_delay", "19ms Delay" },
+         { "20_ms_delay", "20ms Delay" },
+         { "21_ms_delay", "21ms Delay" },
+         { "22_ms_delay", "22ms Delay" },
+         { "23_ms_delay", "23ms Delay" },
+         { "24_ms_delay", "24ms Delay" },
+         { "25_ms_delay", "25ms Delay" },
+         { "26_ms_delay", "26ms Delay" },
+         { "27_ms_delay", "27ms Delay" },
+         { "28_ms_delay", "28ms Delay" },
+         { "29_ms_delay", "29ms Delay" },
+         { "30_ms_delay", "30ms Delay" },
+         { "31_ms_delay", "31ms Delay" },
+         { "32_ms_delay", "32ms Delay" },
+         { NULL, NULL },
+      },
+      "disabled",
+   },
+   {
+      "fceumm_swapduty",
+      "Swap Audio Duty Cycles",
+      "Swap Duty Cycles",
+      "Simulates the sound from famiclones that have the pulse wave channels duty cycle bits reversed.",
+      NULL,
+      "audio",
       {
-         { "disabled", "禁用" },
-         { "enabled",  "启用" },
-         { NULL, NULL},
+         { "disabled", NULL },
+         { "enabled",  NULL },
+         { NULL, NULL },
+      },
+      "disabled",
+   },
+   {
+      "fceumm_sndvolume",
+      "Master Volume",
+      NULL,
+      "Change master volume level.",
+      NULL,
+      "audio",
+      {
+         { "0",  "0%" },
+         { "1",  "10%" },
+         { "2",  "20%" },
+         { "3",  "30%" },
+         { "4",  "40%" },
+         { "5",  "50%" },
+         { "6",  "60%" },
+         { "7",  "70%" },
+         { "8",  "80%" },
+         { "9",  "90%" },
+         { "10", "100%" },
+         { NULL, NULL },
+      },
+      "7",
+   },
+   {
+      "fceumm_apu_1",
+      "Audio Channel 1 (Square 1)",
+      "Channel 1 (Square 1)",
+      "Enables or disables pulse wave generator audio output 1.",
+      NULL,
+      "audio",
+      {
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
       },
       "enabled",
    },
-#endif /* overscan options */
    {
-      "fceumm_up_down_allowed",
-      "允许同时按下相反方向",
-      "允许同时按下上+下或者左+右键，这在有些游戏中可以产生特定的效果。",
+      "fceumm_apu_2",
+      "Audio Channel 2 (Square 2)",
+      "Channel 2 (Square 2)",
+      "Enables or disables pulse wave generator audio output 2.",
+      NULL,
+      "audio",
       {
-         { "disabled", "禁用" },
-         { "enabled",  "启用" },
-         { NULL, NULL},
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
       },
-      "disabled",
+      "enabled",
+   },
+   {
+      "fceumm_apu_3",
+      "Audio Channel 3 (Triangle)",
+      "Channel 3 (Triangle)",
+      "Enables or disables triangle wave generator audio output.",
+      NULL,
+      "audio",
+      {
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
+      },
+      "enabled",
+   },
+   {
+      "fceumm_apu_4",
+      "Audio Channel 4 (Noise)",
+      "Channel 4 (Noise)",
+      "Enables or disables noise generator audio output.",
+      NULL,
+      "audio",
+      {
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
+      },
+      "enabled",
+   },
+   {
+      "fceumm_apu_5",
+      "Audio Channel 5 (PCM)",
+      "Channel 5 (PCM)",
+      "Enables or disables delta modulation channel audio output.",
+      NULL,
+      "audio",
+      {
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
+      },
+      "enabled",
    },
    {
       "fceumm_turbo_enable",
-      "连发模式",
-      "启用或禁用连发键。",
+      "Turbo Enable",
+      NULL,
+      "Enables or disables turbo buttons.",
+      NULL,
+      "input",
       {
-         { "None",     "无" },
-         { "Player 1", "玩家1" },
-         { "Player 2", "玩家2" },
-         { "Both",     "所有" },
-         { NULL, NULL},
+         { "None",     NULL },
+         { "Player 1", NULL },
+         { "Player 2", NULL },
+         { "Both",     NULL },
+         { NULL, NULL },
       },
       "None",
    },
    {
       "fceumm_turbo_delay",
-      "连发间隔（帧数）",
-      "连发键的频率，以帧数为单位。",
+      "Turbo Delay (in frames)",
+      NULL,
+      "Repeat rate of turbo buttons in frames.",
+      NULL,
+      "input",
       {
-         { "1",  NULL },
+         /* { "1",  NULL }, */
          { "2",  NULL },
          { "3",  NULL },
          { "5",  NULL },
@@ -593,37 +503,47 @@ struct retro_core_option_definition option_defs_chs[] = {
          { "15", NULL },
          { "30", NULL },
          { "60", NULL },
-         { NULL, NULL},
+         { NULL, NULL },
       },
       "3",
    },
    {
       "fceumm_zapper_mode",
-      "光枪模式",
-      "选择用于光枪游戏的设备。",
+      "Zapper Mode",
+      NULL,
+      "Selects device to use for Zapper games.",
+      NULL,
+      "input",
       {
-         { "lightgun",    "光枪" },
-         { "touchscreen", "触屏" },
-         { "mouse",       "鼠标" },
-         { NULL, NULL},
+         { "clightgun",   "Crosshair light gun" },
+         { "stlightgun",  "Sequential Targets light gun" },
+         { "touchscreen", "Touchscreen" },
+         { "mouse",       "Mouse" },
+         { NULL, NULL },
       },
-      "lightgun",
+      "clightgun",
    },
    {
       "fceumm_show_crosshair",
-      "显示光枪准心",
-      "游玩光枪游戏时是否在屏幕上显示准心。",
+      "Show Zapper Crosshair",
+      NULL,
+      "Shows or hides on-screen crosshairs when using a Zapper.",
+      NULL,
+      "input",
       {
-         { "enabled",  "启用" },
-         { "disabled", "禁用" },
-         { NULL, NULL},
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
       },
       "enabled",
    },
    {
       "fceumm_zapper_tolerance",
-      "光枪瞄准宽容度",
-      "设置认定瞄准的目标范围，以像素为单位。",
+      "Zapper Tolerance",
+      NULL,
+      "Sets how many pixels from target area is on target.",
+      NULL,
+      "input",
       {
          { "0",  NULL },
          { "1",  NULL },
@@ -649,142 +569,149 @@ struct retro_core_option_definition option_defs_chs[] = {
          { NULL, NULL },
       },
       "6",
-   },   
-   {
-      "fceumm_sndquality",
-      "声音质量",
-      "使用更高的声音质量需要更高的处理器能力。",
-      {
-         { "Low",       "低" },
-         { "High",      "高" },
-         { "Very High", "非常高" },
-         { NULL, NULL},
-      },
-      "Low",
    },
    {
-      "fceumm_swapduty",
-      "交换占空比",
-      "模拟某些仿制机器的脉冲波形通道的声音，它们的占空比和原型机是相反的。",
+      "fceumm_zapper_trigger",
+      "Invert Zapper Trigger Signal",
+      NULL,
+      "Inverts trigger logic when using a Zapper. Disabling it resembles original hardware behavior.",
+      NULL,
+      "input",
       {
-         { "disabled", "禁用" },
-         { "enabled",  "启用" },
-         { NULL, NULL},
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
+      },
+      "enabled",
+   },
+   {
+      "fceumm_zapper_sensor",
+      "Invert Zapper Sensor Signal",
+      NULL,
+      "Inverts sensor logic when using a Zapper (Sequential Targets Light gun mode only). Disabling it resembles original NES/FC hardware behavior.",
+      NULL,
+      "input",
+      {
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
+      },
+      "enabled",
+   },
+   {
+      "fceumm_arkanoid_mode",
+      "Arkanoid Mode",
+      NULL,
+      "Selects device to use for Arkanoid games.",
+      NULL,
+      "input",
+      {
+         { "abs_mouse",      "Absolute mouse" },
+         { "mouse",          "Mouse" },
+         { "stelladaptor",   "Stelladaptor" },
+         { "touchscreen",    "Touchscreen" },
+         { NULL, NULL },
+      },
+      "mouse",
+   },
+   {
+      "fceumm_mouse_sensitivity",
+      "Mouse Sensitivity",
+      NULL,
+      "Mouse sensitivity in percent.",
+      NULL,
+      "input",
+      {
+         { "20", NULL },
+         { "30", NULL },
+         { "40", NULL },
+         { "50", NULL },
+         { "60", NULL },
+         { "70", NULL },
+         { "80", NULL },
+         { "90", NULL },
+         { "100", NULL },
+         { "110", NULL },
+         { "120", NULL },
+         { "130", NULL },
+         { "140", NULL },
+         { "150", NULL },
+         { "160", NULL },
+         { "170", NULL },
+         { "180", NULL },
+         { "190", NULL },
+         { "200", NULL },
+         { NULL, NULL },
+      },
+      "100",
+   },
+   {
+      "fceumm_up_down_allowed",
+      "Allow Opposing Directions",
+      NULL,
+      "Allows simultaneous UP+DOWN or LEFT+RIGHT button combinations, which can create different effects in some games.",
+      NULL,
+      "input",
+      {
+         { "disabled", NULL },
+         { "enabled",  NULL },
+         { NULL, NULL },
       },
       "disabled",
    },
    {
-      "fceumm_sndvolume",
-      "主音量",
-      "更改主音量级别。",
+      "fceumm_nospritelimit",
+      "No Sprite Limit",
+      NULL,
+      "Removes the 8-per-scanline hardware limit. This reduces sprite flickering but can cause some games to glitch since some use this for effects.",
+      NULL,
+      "hacks",
       {
-         { "0",  NULL },
-         { "1",  NULL },
-         { "2",  NULL },
-         { "3",  NULL },
-         { "4",  NULL },
-         { "5",  NULL },
-         { "6",  NULL },
-         { "7",  NULL },
-         { "8",  NULL },
-         { "9",  NULL },
-         { "10", NULL },
-         { NULL, NULL},
-      },
-      "7",
-   },
-   {
-      "fceumm_apu_1",
-      "通道 1（方波 1）",
-      "启用或禁用脉冲波形发生器音频输出1。",
-      {
-         { "enabled",  "启用" },
-         { "disabled", "禁用" },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_apu_2",
-      "通道 2（方波 1）",
-      "启用或禁用脉冲波形发生器音频输出2。",
-      {
-         { "enabled",  "启用" },
-         { "disabled", "禁用" },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_apu_3",
-      "通道 3（三角波）",
-      "启用或禁用三角波发生器音频输出。",
-      {
-         { "enabled",  "启用" },
-         { "disabled", "禁用" },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_apu_4",
-      "通道 4（噪音）",
-      "启用或禁用噪音发生器音频输出。",
-      {
-         { "enabled",  "启用" },
-         { "disabled", "禁用" },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_apu_5",
-      "通道 5（PCM）",
-      "启用或禁用PCM通道音频输出。",
-      {
-         { "enabled",  "启用" },
-         { "disabled", "禁用" },
-         { NULL, NULL},
-      },
-      "enabled",
-   },
-   {
-      "fceumm_show_adv_system_options",
-      "显示高级系统设置",
-      "显示高级系统设置和调整。",
-      {
-         { "disabled", "禁用" },
-         { "enabled",  "启用" },
+         { "disabled", NULL },
+         { "enabled",  NULL },
          { NULL, NULL },
       },
-      "disabled"
+      "disabled",
    },
    {
-      "fceumm_show_adv_sound_options",
-      "显示高级声音设置",
-      "显示高级声音设置和调整。",
+      "fceumm_overclocking",
+      "Overclock",
+      NULL,
+      "Enables or disables overclocking, which can reduce slowdowns in some games. Postrender method is more compatible with every game, Vblank is more effective for games like Contra Force.",
+      NULL,
+      "hacks",
       {
-         { "disabled", "禁用" },
-         { "enabled",  "启用" },
+         { "disabled",      NULL },
+         { "2x-Postrender", NULL },
+         { "2x-VBlank",     NULL },
          { NULL, NULL },
       },
-      "disabled"
+      "disabled",
    },
-
-   { NULL, NULL, NULL, { {0} }, NULL },
+   {
+      "fceumm_ramstate",
+      "RAM Power-On Fill (Restart Required)",
+      NULL,
+      "RAM values on power up. Some games rely on initial RAM values for random number generation as an example.",
+      NULL,
+      "hacks",
+      {
+         { "fill $ff", "$FF" },
+         { "fill $00", "$00" },
+         { "random",   "Random" },
+         { NULL, NULL },
+      },
+      "fill $ff",
+   },
+   { NULL, NULL, NULL, NULL, NULL, NULL, {{0}}, NULL },
 };
 
-/* RETRO_LANGUAGE_ESPERANTO */
+struct retro_core_option_v2_definition option_defs_us[MAX_CORE_OPTIONS];
 
-/* RETRO_LANGUAGE_POLISH */
-
-/* RETRO_LANGUAGE_VIETNAMESE */
-
-/* RETRO_LANGUAGE_ARABIC */
-
-/* RETRO_LANGUAGE_GREEK */
-
-/* RETRO_LANGUAGE_TURKISH */
+struct retro_core_options_v2 options_us = {
+   option_cats_us,
+   option_defs_us
+};
 
 /*
  ********************************
@@ -792,27 +719,34 @@ struct retro_core_option_definition option_defs_chs[] = {
  ********************************
 */
 
-struct retro_core_option_definition *option_defs_intl[RETRO_LANGUAGE_LAST] = {
-   option_defs_us, /* RETRO_LANGUAGE_ENGLISH */
-   NULL,           /* RETRO_LANGUAGE_JAPANESE */
-   NULL,           /* RETRO_LANGUAGE_FRENCH */
-   NULL,           /* RETRO_LANGUAGE_SPANISH */
-   NULL,           /* RETRO_LANGUAGE_GERMAN */
-   NULL,           /* RETRO_LANGUAGE_ITALIAN */
-   NULL,           /* RETRO_LANGUAGE_DUTCH */
-   NULL,           /* RETRO_LANGUAGE_PORTUGUESE_BRAZIL */
-   NULL,           /* RETRO_LANGUAGE_PORTUGUESE_PORTUGAL */
-   NULL,           /* RETRO_LANGUAGE_RUSSIAN */
-   NULL,           /* RETRO_LANGUAGE_KOREAN */
-   NULL,           /* RETRO_LANGUAGE_CHINESE_TRADITIONAL */
-   option_defs_chs,/* RETRO_LANGUAGE_CHINESE_SIMPLIFIED */
-   NULL,           /* RETRO_LANGUAGE_ESPERANTO */
-   NULL,           /* RETRO_LANGUAGE_POLISH */
-   NULL,           /* RETRO_LANGUAGE_VIETNAMESE */
-   NULL,           /* RETRO_LANGUAGE_ARABIC */
-   NULL,           /* RETRO_LANGUAGE_GREEK */
-   NULL,           /* RETRO_LANGUAGE_TURKISH */
+#ifndef HAVE_NO_LANGEXTRA
+struct retro_core_options_v2 *options_intl[RETRO_LANGUAGE_LAST] = {
+   &options_us,    /* RETRO_LANGUAGE_ENGLISH */
+   &options_ja,      /* RETRO_LANGUAGE_JAPANESE */
+   &options_fr,      /* RETRO_LANGUAGE_FRENCH */
+   &options_es,      /* RETRO_LANGUAGE_SPANISH */
+   &options_de,      /* RETRO_LANGUAGE_GERMAN */
+   &options_it,      /* RETRO_LANGUAGE_ITALIAN */
+   &options_nl,      /* RETRO_LANGUAGE_DUTCH */
+   &options_pt_br,   /* RETRO_LANGUAGE_PORTUGUESE_BRAZIL */
+   &options_pt_pt,   /* RETRO_LANGUAGE_PORTUGUESE_PORTUGAL */
+   &options_ru,      /* RETRO_LANGUAGE_RUSSIAN */
+   &options_ko,      /* RETRO_LANGUAGE_KOREAN */
+   &options_cht,     /* RETRO_LANGUAGE_CHINESE_TRADITIONAL */
+   &options_chs,     /* RETRO_LANGUAGE_CHINESE_SIMPLIFIED */
+   &options_eo,      /* RETRO_LANGUAGE_ESPERANTO */
+   &options_pl,      /* RETRO_LANGUAGE_POLISH */
+   &options_vn,      /* RETRO_LANGUAGE_VIETNAMESE */
+   &options_ar,      /* RETRO_LANGUAGE_ARABIC */
+   &options_el,      /* RETRO_LANGUAGE_GREEK */
+   &options_tr,      /* RETRO_LANGUAGE_TURKISH */
+   &options_sv,      /* RETRO_LANGUAGE_SLOVAK */
+   &options_fa,      /* RETRO_LANGUAGE_PERSIAN */
+   &options_he,      /* RETRO_LANGUAGE_HEBREW */
+   &options_ast,     /* RETRO_LANGUAGE_ASTURIAN */
+   &options_fi,      /* RETRO_LANGUAGE_FINNISH */
 };
+#endif
 
 /*
  ********************************
@@ -827,41 +761,61 @@ struct retro_core_option_definition *option_defs_intl[RETRO_LANGUAGE_LAST] = {
  *   be as painless as possible for core devs)
  */
 
-static INLINE void libretro_set_core_options(retro_environment_t environ_cb)
+static INLINE void libretro_set_core_options(retro_environment_t environ_cb,
+      bool *categories_supported)
 {
-   unsigned version = 0;
+   unsigned version  = 0;
+#ifndef HAVE_NO_LANGEXTRA
+   unsigned language = 0;
+#endif
 
-   if (!environ_cb)
+   if (!environ_cb || !categories_supported)
       return;
 
-   if (environ_cb(RETRO_ENVIRONMENT_GET_CORE_OPTIONS_VERSION, &version) && (version == 1))
-   {
-      struct retro_core_options_intl core_options_intl;
-      unsigned language = 0;
+   *categories_supported = false;
 
-      core_options_intl.us    = option_defs_us;
+   if (!environ_cb(RETRO_ENVIRONMENT_GET_CORE_OPTIONS_VERSION, &version))
+      version = 0;
+
+   if (version >= 2)
+   {
+#ifndef HAVE_NO_LANGEXTRA
+      struct retro_core_options_v2_intl core_options_intl;
+
+      core_options_intl.us    = &options_us;
       core_options_intl.local = NULL;
 
       if (environ_cb(RETRO_ENVIRONMENT_GET_LANGUAGE, &language) &&
           (language < RETRO_LANGUAGE_LAST) && (language != RETRO_LANGUAGE_ENGLISH))
-         core_options_intl.local = option_defs_intl[language];
+         core_options_intl.local = options_intl[language];
 
-      environ_cb(RETRO_ENVIRONMENT_SET_CORE_OPTIONS_INTL, &core_options_intl);
+      *categories_supported = environ_cb(RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2_INTL,
+            &core_options_intl);
+#else
+      *categories_supported = environ_cb(RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2,
+            &options_us);
+#endif
    }
    else
    {
-      size_t i;
+      size_t i, j;
       size_t option_index              = 0;
       size_t num_options               = 0;
+      struct retro_core_option_definition
+            *option_v1_defs_us         = NULL;
+#ifndef HAVE_NO_LANGEXTRA
+      size_t num_options_intl          = 0;
+      struct retro_core_option_v2_definition
+            *option_defs_intl          = NULL;
+      struct retro_core_option_definition
+            *option_v1_defs_intl       = NULL;
+      struct retro_core_options_intl
+            core_options_v1_intl;
+#endif
       struct retro_variable *variables = NULL;
       char **values_buf                = NULL;
 
-      /* Determine number of options
-       * > Note: We are going to skip a number of irrelevant
-       *   core options when building the retro_variable array,
-       *   but we'll allocate space for all of them. The difference
-       *   in resource usage is negligible, and this allows us to
-       *   keep the code 'cleaner' */
+      /* Determine total number of options */
       while (true)
       {
          if (option_defs_us[num_options].key)
@@ -870,92 +824,193 @@ static INLINE void libretro_set_core_options(retro_environment_t environ_cb)
             break;
       }
 
-      /* Allocate arrays */
-      variables  = (struct retro_variable *)calloc(num_options + 1, sizeof(struct retro_variable));
-      values_buf = (char **)calloc(num_options, sizeof(char *));
-
-      if (!variables || !values_buf)
-         goto error;
-
-      /* Copy parameters from option_defs_us array */
-      for (i = 0; i < num_options; i++)
+      if (version >= 1)
       {
-         const char *key                        = option_defs_us[i].key;
-         const char *desc                       = option_defs_us[i].desc;
-         const char *default_value              = option_defs_us[i].default_value;
-         struct retro_core_option_value *values = option_defs_us[i].values;
-         size_t buf_len                         = 3;
-         size_t default_index                   = 0;
+         /* Allocate US array */
+         option_v1_defs_us = (struct retro_core_option_definition *)
+               calloc(num_options + 1, sizeof(struct retro_core_option_definition));
 
-         values_buf[i] = NULL;
-
-         /* Skip options that are irrelevant when using the
-          * old style core options interface */
-         if ((strcmp(key, "fceumm_advance_sound_options") == 0))
-            continue;
-
-         if (desc)
+         /* Copy parameters from option_defs_us array */
+         for (i = 0; i < num_options; i++)
          {
-            size_t num_values = 0;
+            struct retro_core_option_v2_definition *option_def_us = &option_defs_us[i];
+            struct retro_core_option_value *option_values         = option_def_us->values;
+            struct retro_core_option_definition *option_v1_def_us = &option_v1_defs_us[i];
+            struct retro_core_option_value *option_v1_values      = option_v1_def_us->values;
 
-            /* Determine number of values */
+            option_v1_def_us->key           = option_def_us->key;
+            option_v1_def_us->desc          = option_def_us->desc;
+            option_v1_def_us->info          = option_def_us->info;
+            option_v1_def_us->default_value = option_def_us->default_value;
+
+            /* Values must be copied individually... */
+            while (option_values->value)
+            {
+               option_v1_values->value = option_values->value;
+               option_v1_values->label = option_values->label;
+
+               option_values++;
+               option_v1_values++;
+            }
+         }
+
+#ifndef HAVE_NO_LANGEXTRA
+         if (environ_cb(RETRO_ENVIRONMENT_GET_LANGUAGE, &language) &&
+             (language < RETRO_LANGUAGE_LAST) && (language != RETRO_LANGUAGE_ENGLISH) &&
+             options_intl[language])
+            option_defs_intl = options_intl[language]->definitions;
+
+         if (option_defs_intl)
+         {
+            /* Determine number of intl options */
             while (true)
             {
-               if (values[num_values].value)
-               {
-                  /* Check if this is the default value */
-                  if (default_value)
-                     if (strcmp(values[num_values].value, default_value) == 0)
-                        default_index = num_values;
-
-                  buf_len += strlen(values[num_values].value);
-                  num_values++;
-               }
+               if (option_defs_intl[num_options_intl].key)
+                  num_options_intl++;
                else
                   break;
             }
 
-            /* Build values string */
-            if (num_values > 1)
+            /* Allocate intl array */
+            option_v1_defs_intl = (struct retro_core_option_definition *)
+                  calloc(num_options_intl + 1, sizeof(struct retro_core_option_definition));
+
+            /* Copy parameters from option_defs_intl array */
+            for (i = 0; i < num_options_intl; i++)
             {
-               size_t j;
+               struct retro_core_option_v2_definition *option_def_intl = &option_defs_intl[i];
+               struct retro_core_option_value *option_values           = option_def_intl->values;
+               struct retro_core_option_definition *option_v1_def_intl = &option_v1_defs_intl[i];
+               struct retro_core_option_value *option_v1_values        = option_v1_def_intl->values;
 
-               buf_len += num_values - 1;
-               buf_len += strlen(desc);
+               option_v1_def_intl->key           = option_def_intl->key;
+               option_v1_def_intl->desc          = option_def_intl->desc;
+               option_v1_def_intl->info          = option_def_intl->info;
+               option_v1_def_intl->default_value = option_def_intl->default_value;
 
-               values_buf[i] = (char *)calloc(buf_len, sizeof(char));
-               if (!values_buf[i])
-                  goto error;
-
-               strcpy(values_buf[i], desc);
-               strcat(values_buf[i], "; ");
-
-               /* Default value goes first */
-               strcat(values_buf[i], values[default_index].value);
-
-               /* Add remaining values */
-               for (j = 0; j < num_values; j++)
+               /* Values must be copied individually... */
+               while (option_values->value)
                {
-                  if (j != default_index)
-                  {
-                     strcat(values_buf[i], "|");
-                     strcat(values_buf[i], values[j].value);
-                  }
+                  option_v1_values->value = option_values->value;
+                  option_v1_values->label = option_values->label;
+
+                  option_values++;
+                  option_v1_values++;
                }
             }
          }
 
-         variables[option_index].key   = key;
-         variables[option_index].value = values_buf[i];
-         option_index++;
+         core_options_v1_intl.us    = option_v1_defs_us;
+         core_options_v1_intl.local = option_v1_defs_intl;
+
+         environ_cb(RETRO_ENVIRONMENT_SET_CORE_OPTIONS_INTL, &core_options_v1_intl);
+#else
+         environ_cb(RETRO_ENVIRONMENT_SET_CORE_OPTIONS, option_v1_defs_us);
+#endif
+      }
+      else
+      {
+         /* Allocate arrays */
+         variables  = (struct retro_variable *)calloc(num_options + 1,
+               sizeof(struct retro_variable));
+         values_buf = (char **)calloc(num_options, sizeof(char *));
+
+         if (!variables || !values_buf)
+            goto error;
+
+         /* Copy parameters from option_defs_us array */
+         for (i = 0; i < num_options; i++)
+         {
+            const char *key                        = option_defs_us[i].key;
+            const char *desc                       = option_defs_us[i].desc;
+            const char *default_value              = option_defs_us[i].default_value;
+            struct retro_core_option_value *values = option_defs_us[i].values;
+            size_t buf_len                         = 3;
+            size_t default_index                   = 0;
+
+            values_buf[i] = NULL;
+
+            /* Skip options that are irrelevant when using the
+             * old style core options interface */
+            if ((strcmp(key, "fceumm_show_adv_system_options") == 0) ||
+                (strcmp(key, "fceumm_advance_sound_options") == 0))
+               continue;
+
+            if (desc)
+            {
+               size_t num_values = 0;
+
+               /* Determine number of values */
+               while (true)
+               {
+                  if (values[num_values].value)
+                  {
+                     /* Check if this is the default value */
+                     if (default_value)
+                        if (strcmp(values[num_values].value, default_value) == 0)
+                           default_index = num_values;
+
+                     buf_len += strlen(values[num_values].value);
+                     num_values++;
+                  }
+                  else
+                     break;
+               }
+
+               /* Build values string */
+               if (num_values > 0)
+               {
+                  buf_len += num_values - 1;
+                  buf_len += strlen(desc);
+
+                  values_buf[i] = (char *)calloc(buf_len, sizeof(char));
+                  if (!values_buf[i])
+                     goto error;
+
+                  strcpy(values_buf[i], desc);
+                  strcat(values_buf[i], "; ");
+
+                  /* Default value goes first */
+                  strcat(values_buf[i], values[default_index].value);
+
+                  /* Add remaining values */
+                  for (j = 0; j < num_values; j++)
+                  {
+                     if (j != default_index)
+                     {
+                        strcat(values_buf[i], "|");
+                        strcat(values_buf[i], values[j].value);
+                     }
+                  }
+               }
+            }
+
+            variables[option_index].key   = key;
+            variables[option_index].value = values_buf[i];
+            option_index++;
+         }
+
+         /* Set variables */
+         environ_cb(RETRO_ENVIRONMENT_SET_VARIABLES, variables);
       }
 
-      /* Set variables */
-      environ_cb(RETRO_ENVIRONMENT_SET_VARIABLES, variables);
-
 error:
-
       /* Clean up */
+
+      if (option_v1_defs_us)
+      {
+         free(option_v1_defs_us);
+         option_v1_defs_us = NULL;
+      }
+
+#ifndef HAVE_NO_LANGEXTRA
+      if (option_v1_defs_intl)
+      {
+         free(option_v1_defs_intl);
+         option_v1_defs_intl = NULL;
+      }
+#endif
+
       if (values_buf)
       {
          for (i = 0; i < num_options; i++)

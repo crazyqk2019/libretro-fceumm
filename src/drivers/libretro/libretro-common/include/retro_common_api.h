@@ -1,4 +1,4 @@
-/* Copyright  (C) 2010-2018 The RetroArch team
+/* Copyright  (C) 2010-2020 The RetroArch team
  *
  * ---------------------------------------------------------------------------------------
  * The following license statement only applies to this file (retro_common_api.h).
@@ -100,6 +100,26 @@ typedef int ssize_t;
 #define STRING_REP_INT64 "%" PRId64
 #define STRING_REP_UINT64 "%" PRIu64
 #define STRING_REP_USIZE "%" PRIuPTR
+
+/* Wrap a declaration in RETRO_DEPRECATED() to produce a compiler warning when
+it's used. This is intended for developer machines, so it won't work on ancient
+or obscure compilers */
+#if defined(_MSC_VER)
+#if _MSC_VER >= 1400 /* Visual C 2005 or later */
+#define RETRO_DEPRECATED(decl) __declspec(deprecated) decl
+#endif
+#elif defined(__GNUC__)
+#if __GNUC__ >= 3 /* GCC 3 or later */
+#define RETRO_DEPRECATED(decl) decl __attribute__((deprecated))
+#endif
+#elif defined(__clang__)
+#if __clang_major__ >= 3 /* clang 3 or later */
+#define RETRO_DEPRECATED(decl) decl __attribute__((deprecated))
+#endif
+#endif
+#ifndef RETRO_DEPRECATED /* Unsupported compilers */
+#define RETRO_DEPRECATED(decl) decl
+#endif
 
 /*
 I would like to see retro_inline.h moved in here; possibly boolean too.
